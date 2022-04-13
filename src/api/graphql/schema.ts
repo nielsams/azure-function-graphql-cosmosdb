@@ -19,6 +19,7 @@ const typeDefs = gql`
         Lists: [List]
         ListById(listId: String!): List
         ListItems(listId: String!): [ListItem]
+        ListItemById(listItemId: String!): ListItem
     }
 `;
 
