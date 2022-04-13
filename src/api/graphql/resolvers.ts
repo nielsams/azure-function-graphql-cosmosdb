@@ -67,6 +67,23 @@ const resolvers = {
                 .fetchAll();
 
             return results.resources;
+        },
+        async ListItemById(_, {listItemId}: {listItemId:String}) {
+            let results = await client
+                .database("ToDoList")
+                .container("Items")
+                .items.query({
+                    query: "SELECT * FROM c WHERE c.id=@listItemId",
+                    parameters: [
+                        {
+                            name: "@listItemId",
+                            value: listItemId
+                        }
+                    ]
+                })
+                .fetchAll();
+
+            return results.resources[0];
         }
     }
 };
