@@ -7,8 +7,8 @@ export const GET_LISTS = gql`
         title
         items {
           id,
-          Title,
-          Status
+          title,
+          status
         }
       }  
   }

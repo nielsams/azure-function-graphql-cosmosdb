@@ -1,15 +1,20 @@
 <template>
-   <div>
+   <div class="todoCanvasRoot">
       <h3>Your to-do items for today</h3>
-      <div v-for="list of todolists" :key="list.id">
-         <h3>{{ list.title }}</h3>
-         <ul>
-            <li v-for="listitem of list.items" :key="listitem.id">
-               {{ listitem.Title }}
-            </li>
-         </ul>
+      <div class="loadingIcon" v-show="loading">
+         <img src="images/loading.gif" />
       </div>
-  </div>
+      <div class="todolistFlexContainer" v-show="todolists.length > 0">
+         <div v-for="list of todolists" :key="list.id" class="todolist">
+            <h3>{{ list.title }}</h3>
+            <ul>
+               <li v-for="listitem of list.items" :key="listitem.id">
+                  {{ listitem.title }}
+               </li>
+            </ul>
+         </div>
+      </div>
+   </div>
 </template>
 
 <script>
@@ -20,26 +25,22 @@ export default {
   data: function() {
       return {
          todolists: [],
-         loading: false
+         loading: true
       }
    },
-   async created() {
+   created() {
       this.loading = true;
 
       try {
         //const listQuery = useQuery(GET_LISTS, {})
         const { result, loading, error } = useQuery(GET_LISTS, {})
         this.todolists = useResult(result, [], (data) => data?.Lists)
-        //console.log("query result: "+listQuery.result)
-        console.log("lists: "+JSON.stringify(result))
-        console.log("error: "+JSON.stringify(error))
-        console.log("todolists: "+JSON.stringify(this.todolists))
+        this.loading = loading
       }
       catch (e) {
          console.log("error fetching data: "+e.message)
          //EventBus.$emit(Constants.EVENT_ERROR, "There was a problem fetching items. " + e.message);
       }
-      //this.loading = false;
    },
    methods: {
    }

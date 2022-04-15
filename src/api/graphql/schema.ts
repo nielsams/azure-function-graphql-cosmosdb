@@ -4,9 +4,8 @@ const typeDefs = gql`
     type ListItem {
         id: ID,
         list: List!
-        Title: String,
-        Status: String,
-        CompletionDate: String
+        title: String,
+        status: String
     }
 
     type List {
