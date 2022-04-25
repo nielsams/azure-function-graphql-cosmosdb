@@ -15,7 +15,7 @@ const fetchFunction = function (uri: RequestInfo, options: RequestInit) {
 
 // Create an http link:
 const httpLink = new HttpLink({
-    uri: "http://localhost:7071/api/graphql/",
+    uri: "/api/graphql/",
     fetch: fetchFunction,
 })
 
