@@ -85,6 +85,12 @@ jobs:
         - name: 'Checkout GitHub Action'
           uses: actions/checkout@main
 
+        - name: 'Login via Azure CLI'
+          uses: azure/login@v1
+          with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
+            enable-AzPSSession: true 
+
         - uses: actions/download-artifact@v2
           with:
             name: deploymentOutput
@@ -99,7 +105,12 @@ jobs:
               $functionName = $deploymentOutput.FUNCTION_NAME.Value
               $rgName = $deploymentOutput.RESOURCE_GROUP_NAME.Value
 
+              Write-Output "Getting publish profile for function $functionName in resource group $rgName"
               $profile = (az functionapp deployment list-publishing-credentials --name $functionName --resource-group $rgName)
+              if($profile -eq $null) {
+                Write-Error "Unable to retrieve publish profile"
+              }
+
               Write-Output ::set-output name=function_publish_profile::$profile
 
         - name: 'Publish Azure Function'
@@ -137,7 +148,7 @@ jobs:
             inlineScript: |
               $deploymentOutput = Get-Content deploymentOutput.json | ConvertFrom-Json -Depth 10
               $storageAccountName = $deploymentOutput.STORAGE_ACCOUNT_NAME.Value
-              
+              Write-Output "Found storage account $storageAccountName in deployment output"
               Write-Output ::set-output name=storage_account_name::$storageAccountName
 
         - name: 'Copy files to Azure Storage'
