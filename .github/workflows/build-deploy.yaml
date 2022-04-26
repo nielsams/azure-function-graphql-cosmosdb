@@ -38,11 +38,17 @@ jobs:
               }
 
               $res = New-AzDeployment -TemplateFile "src/infra/bicep/main.bicep" -TemplateParameterObject $params -Location ${{ secrets.AZURE_REGION }}
-              $res.ProvisioningState
+              
+              # Save the outputs from the deployment for later use
+              $outputsJson = $res.Outputs | ConvertTo-Json -Depth 10
+              Write-Output $outputsJson
+              $outputsJson | Out-File deploymentoutput.json
+
     
     build-node:
         name: Build API and Frontend
         runs-on: ubuntu-latest
+        
         steps:
         - name: 'Checkout GitHub Action'
           uses: actions/checkout@main
@@ -54,8 +60,10 @@ jobs:
 
         - name: 'Build API'
           run: |
-            npm install
-            npm run build        
+            pushd package
+            npm install --if-present
+            npm run build --if-present
+            popd
           working-directory: src/api
 
         - name: 'Build Frontend'
@@ -63,3 +71,56 @@ jobs:
             npm install
             npm run build        
           working-directory: src/frontend
+
+    publish-api:
+        name: Publish API to Azure Function
+        needs: [deploy-infra, build-node]
+        runs-on: ubuntu-latest
+
+        steps:
+        - name: 'Checkout GitHub Action'
+          uses: actions/checkout@main
+
+        - name: 'Obtain Function publish profile'
+          id: func-publish-profile
+          uses: azure/powershell@v1
+          with: 
+            azPSVersion: 7.5.0
+            inlineScript: |
+              $deploymentOutput = Get-Content deploymentoutput.json | ConvertFrom-Json
+              $rgName = $deploymentOutput.RESOURCE_GROUP_NAME
+              $funcName = $deploymentOutput.FUNCTION_NAME
+
+              $profile = (az functionapp deployment list-publishing-credentials --name app1-graphqlfunc --resource-group app1-rg)
+              Write-Output ::set-output name=function_publish_profile::$profile
+
+        - name: 'Publish Azure Function'
+          uses: Azure/functions-action@v1
+          id: fa
+          with:
+            app-name: graphql
+            package: src/api/package
+            publish-profile: ${{ steps.func-publish-profile.outputs.function_publish_profile }}
+
+    publish-web:
+        name: Publish Website to Static Storage website
+        needs: [deploy-infra, build-node]
+        runs-on: ubuntu-latest
+
+        steps:
+        - name: 'Checkout GitHub Action'
+          uses: actions/checkout@main
+
+        - name: 'Login via Azure CLI'
+          uses: azure/login@v1
+          with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
+            enable-AzPSSession: true 
+
+        - name: 'Copy files to Azure Storage'
+          uses: Azure/cli@v1
+          with:
+            inlineScript: |
+              az storage blob service-properties update --account-name app1appstor --static-website --404-document index.html --index-document index.html
+              az storage blob upload-batch --auth-mode login --account-name app1appstor --destination '$web' --source src/frontend/dist --overwrite true
+              

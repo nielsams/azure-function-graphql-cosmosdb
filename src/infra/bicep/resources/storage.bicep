@@ -18,3 +18,4 @@ resource storageappdata 'Microsoft.Storage/storageAccounts@2021-08-01' = {
 }
 
 output staticWebsiteUrl string = replace(replace(storageappdata.properties.primaryEndpoints.web, 'https://',''), '/', '')
+output storageAccountName string = storageappdata.name

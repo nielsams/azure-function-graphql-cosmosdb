@@ -54,3 +54,7 @@ module cosmosdb './resources/cosmosdb.bicep' = {
     location: rg.location
   }
 }
+
+output RESOURCE_GROUP_NAME string = rg.name
+output FUNCTION_NAME string = function.outputs.functionName
+output STORAGE_ACCOUNT_NAME string = storage.outputs.storageAccountName
