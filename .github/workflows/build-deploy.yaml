@@ -16,6 +16,9 @@ jobs:
     deploy-infra:
         name: Deploy Azure Resources
         runs-on: ubuntu-latest
+        outputs: 
+          deploymentOutput: ${{ steps.azure-deploy.outputs.deployment-output }}
+
         steps:
 
         # checkout the repo
@@ -30,6 +33,7 @@ jobs:
         
         - name: Deploy Azure Resources
           uses: azure/powershell@v1
+          id: azure-deploy
           with: 
             azPSVersion: "latest"
             inlineScript: |
@@ -43,6 +47,7 @@ jobs:
               $outputsJson = $res.Outputs | ConvertTo-Json -Depth 10
               Write-Output $outputsJson
               $outputsJson | Out-File deploymentoutput.json
+              Write-Output ::set-output name=deployment-output::$outputsJson
 
     
     build-node:
@@ -85,11 +90,11 @@ jobs:
           with: 
             azPSVersion: "latest"
             inlineScript: |
-              $deploymentOutput = Get-Content deploymentoutput.json | ConvertFrom-Json
+              $deploymentOutput = "${{jobs.deploy-infra.outputs.deploymentOutput}}" | ConvertFrom-Json -Depth 10
+              $functionName = $deploymentOutput.FUNCTION_NAME.Value
               $rgName = $deploymentOutput.RESOURCE_GROUP_NAME.Value
-              $funcName = $deploymentOutput.FUNCTION_NAME.Value
 
-              $profile = (az functionapp deployment list-publishing-credentials --name app1-graphqlfunc --resource-group app1-rg)
+              $profile = (az functionapp deployment list-publishing-credentials --name $functionName --resource-group $rgName)
               Write-Output ::set-output name=function_publish_profile::$profile
 
         - name: 'Publish Azure Function'
@@ -121,7 +126,7 @@ jobs:
           with: 
             azPSVersion: "latest"
             inlineScript: |
-              $deploymentOutput = Get-Content deploymentoutput.json | ConvertFrom-Json
+              $deploymentOutput = "${{jobs.deploy-infra.outputs.deploymentOutput}}" | ConvertFrom-Json -Depth 10
               $storageAccountName = $deploymentOutput.STORAGE_ACCOUNT_NAME.Value
               
               Write-Output ::set-output name=storage_account_name::$storageAccountName
