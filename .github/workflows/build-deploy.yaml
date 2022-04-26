@@ -179,7 +179,7 @@ jobs:
               az storage blob upload-batch --auth-mode key --account-name ${STORAGE_ACCOUNT} --destination '$web' --source src/frontend/dist --overwrite true
 
     insert-sampledata:
-        name: Insert Sample data in database
+        name: Insert sample data
         needs: [deploy-infra]
         runs-on: ubuntu-latest
 
@@ -195,6 +195,12 @@ jobs:
           uses: actions/setup-node@v3
           with:
             node-version: '16'
+
+        - name: 'Login via Azure CLI'
+          uses: azure/login@v1
+          with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
+            enable-AzPSSession: true
 
         - name: 'Get CosmosDB ConnectionString'
           id: get-connection-string
