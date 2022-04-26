@@ -34,7 +34,7 @@ jobs:
             azPSVersion: 7.5.0
             inlineScript: |
               $params = @{
-                name = "app1;
+                name = "app1";
               }
 
               $res = New-AzDeployment -TemplateFile "src/infra/bicep/main.bicep" -TemplateParameterObject $params -Location ${{ secrets.AZURE_REGION }}
