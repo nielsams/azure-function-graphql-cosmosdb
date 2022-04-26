@@ -112,14 +112,15 @@ jobs:
               }
 
               Write-Output ::set-output name=function_publish_profile::$profile
+              Write-Output ::set-output name=function_name::$functionName
 
         - name: 'Publish Azure Function'
           uses: Azure/functions-action@v1
           id: fa
           with:
-            app-name: graphql
+            app-name: ${{ steps.func-publish-profile.outputs.function_name }}
             package: src/api
-            publish-profile: ${{ steps.func-publish-profile.outputs.function_publish_profile }}
+            # publish-profile: ${{ steps.func-publish-profile.outputs.function_publish_profile }}
 
     publish-web:
         name: Publish Website to Static Storage website
@@ -153,7 +154,9 @@ jobs:
 
         - name: 'Copy files to Azure Storage'
           uses: Azure/cli@v1
+          env:
+            STORAGE_ACCOUNT: ${{ steps.storage-name.outputs.storage_account_name }}
           with:
             inlineScript: |
-              az storage blob service-properties update --account-name ${{ steps.storage-name.outputs.storage_account_name}} --static-website --404-document index.html --index-document index.html
-              az storage blob upload-batch --auth-mode login --account-name ${{ steps.storage-name.outputs.storage_account_name}} --destination '$web' --source src/frontend/dist --overwrite true
+              az storage blob service-properties update --account-name ${STORAGE_ACCOUNT} --static-website --404-document index.html --index-document index.html
+              az storage blob upload-batch --auth-mode login --account-name ${STORAGE_ACCOUNT} --destination '$web' --source src/frontend/dist --overwrite true
