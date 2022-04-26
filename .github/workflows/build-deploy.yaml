@@ -16,9 +16,6 @@ jobs:
     deploy-infra:
         name: Deploy Azure Resources
         runs-on: ubuntu-latest
-        outputs: 
-          deploymentOutput: ${{ steps.azure-deploy.outputs.deployment-output }}
-
         steps:
 
         # checkout the repo
@@ -46,9 +43,13 @@ jobs:
               # Save the outputs from the deployment for later use
               $outputsJson = $res.Outputs | ConvertTo-Json -Depth 10
               Write-Output $outputsJson
-              $outputsJson | Out-File deploymentoutput.json
-              Write-Output ::set-output name=deployment-output::$outputsJson
+              $outputsJson | Out-File deploymentOutput.json
 
+        - name: Save deployment output
+          uses: actions/upload-artifact@v2
+          with:
+            name: deploymentOutput
+            path: deploymentOutput.json
     
     build-node:
         name: Build API and Frontend
@@ -84,13 +85,17 @@ jobs:
         - name: 'Checkout GitHub Action'
           uses: actions/checkout@main
 
+        - uses: actions/download-artifact@v2
+          with:
+            name: deploymentOutput
+
         - name: 'Obtain Function publish profile'
           id: func-publish-profile
           uses: azure/powershell@v1
           with: 
             azPSVersion: "latest"
             inlineScript: |
-              $deploymentOutput = "${{ needs.deploy-infra.outputs.deploymentOutput }}" | ConvertFrom-Json -Depth 10
+              $deploymentOutput = Get-Content deploymentOutput.json | ConvertFrom-Json -Depth 10
               $functionName = $deploymentOutput.FUNCTION_NAME.Value
               $rgName = $deploymentOutput.RESOURCE_GROUP_NAME.Value
 
@@ -114,6 +119,10 @@ jobs:
         - name: 'Checkout GitHub Action'
           uses: actions/checkout@main
 
+        - uses: actions/download-artifact@v2
+          with:
+            name: deploymentOutput
+
         - name: 'Login via Azure CLI'
           uses: azure/login@v1
           with:
@@ -126,7 +135,7 @@ jobs:
           with: 
             azPSVersion: "latest"
             inlineScript: |
-              $deploymentOutput = "${{ needs.deploy-infra.outputs.deploymentOutput }}" | ConvertFrom-Json -Depth 10
+              $deploymentOutput = Get-Content deploymentOutput.json | ConvertFrom-Json -Depth 10
               $storageAccountName = $deploymentOutput.STORAGE_ACCOUNT_NAME.Value
               
               Write-Output ::set-output name=storage_account_name::$storageAccountName
