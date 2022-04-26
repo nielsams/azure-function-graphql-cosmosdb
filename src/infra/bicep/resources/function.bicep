@@ -49,7 +49,7 @@ resource functionasp 'Microsoft.Web/serverfarms@2021-03-01' = {
   kind: 'functionapp'
 }
 
-resource functionstorage 'Microsoft.Storage/storageAccounts@2021-09-01' = {
+resource functionstorage 'Microsoft.Storage/storageAccounts@2021-08-01' = {
   name: '${nameprefix}funcstor'
   location: location
   sku: {
