@@ -5,7 +5,7 @@ param nameprefix string
 param location string = resourceGroup().location
 
 resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
-  name: '${nameprefix}-graphqlfunc'
+  name: '${nameprefix}graphqlfunc'
   location: location
   kind: 'functionapp'
   properties: {
