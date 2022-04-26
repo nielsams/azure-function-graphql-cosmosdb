@@ -64,17 +64,23 @@ jobs:
           with:
             node-version: '16'
 
-        - name: 'Build API'
-          run: |
-            npm install --if-present
-            npm run build --if-present
-          working-directory: src/api
+        # - name: 'Build API'
+        #   run: |
+        #     npm install
+        #     npm run build
+        #   working-directory: src/api
 
         - name: 'Build Frontend'
           run: |
             npm install
             npm run build        
           working-directory: src/frontend
+
+        - name: Save frontend build output
+          uses: actions/upload-artifact@v2
+          with:
+            name: buildFrontend
+            path: src/frontend/dist/*
 
     publish-api:
         name: Publish API to Azure Function
@@ -95,7 +101,7 @@ jobs:
           with:
             name: deploymentOutput
 
-        - name: 'Obtain Function publish profile'
+        - name: 'Get function name'
           id: function-metadata
           uses: azure/powershell@v1
           with: 
@@ -103,15 +109,15 @@ jobs:
             inlineScript: |
               $deploymentOutput = Get-Content deploymentOutput.json | ConvertFrom-Json -Depth 10
               $functionName = $deploymentOutput.FUNCTION_NAME.Value
-              $rgName = $deploymentOutput.RESOURCE_GROUP_NAME.Value
+              # $rgName = $deploymentOutput.RESOURCE_GROUP_NAME.Value
 
-              Write-Output "Getting publish profile for function $functionName in resource group $rgName"
-              $profile = (az functionapp deployment list-publishing-credentials --name $functionName --resource-group $rgName)
-              if($profile -eq $null) {
-                Write-Error "Unable to retrieve publish profile"
-              }
+              # Write-Output "Getting publish profile for function $functionName in resource group $rgName"
+              # $profile = (az functionapp deployment list-publishing-credentials --name $functionName --resource-group $rgName)
+              # if($profile -eq $null) {
+              #   Write-Error "Unable to retrieve publish profile"
+              # }
 
-              echo "::set-output name=function_publish_profile::$profile"
+              # echo "::set-output name=function_publish_profile::$profile"
               echo "::set-output name=function_name::$functionName"
 
         - name: 'Publish Azure Function'
