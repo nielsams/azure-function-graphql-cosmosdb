@@ -105,3 +105,5 @@ resource cosmosdb_ToDoList_Lists 'Microsoft.DocumentDB/databaseAccounts/sqlDatab
     }
   }
 }
+
+output cosmosDBName string = cosmosdb.name

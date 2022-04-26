@@ -159,8 +159,6 @@ jobs:
             creds: ${{ secrets.AZURE_CREDENTIALS }}
             enable-AzPSSession: true
 
-        - run: ls -alR 
-
         - name: 'Get storage account name from deployment'
           id: storage-name
           uses: azure/powershell@v1
@@ -179,3 +177,47 @@ jobs:
             inlineScript: |
               az storage blob service-properties update --account-name ${STORAGE_ACCOUNT} --static-website --404-document index.html --index-document index.html
               az storage blob upload-batch --auth-mode key --account-name ${STORAGE_ACCOUNT} --destination '$web' --source src/frontend/dist --overwrite true
+
+    insert-sampledata:
+        name: Insert Sample data in database
+        needs: [deploy-infra]
+        runs-on: ubuntu-latest
+
+        steps:
+        - name: 'Checkout GitHub Action'
+          uses: actions/checkout@main
+
+        - uses: actions/download-artifact@v2
+          with:
+            name: deploymentOutput
+
+        - name: 'Setup Node'
+          uses: actions/setup-node@v3
+          with:
+            node-version: '16'
+
+        - name: 'Get CosmosDB ConnectionString'
+          id: get-connection-string
+          uses: azure/powershell@v1
+          with: 
+            azPSVersion: "latest"
+            inlineScript: |
+              $deploymentOutput = Get-Content deploymentOutput.json | ConvertFrom-Json -Depth 10
+              $cosmosName = $deploymentOutput.COSMOSDB_NAME.Value
+              $rgName = $deploymentOutput.RESOURCE_GROUP_NAME.Value
+
+              # This returns a list of all connection strings for the cosmosdb instance
+              $allConnectionStrings = (az cosmosdb keys list --name $cosmosName --resource-group $rgName --type connection-strings) | ConvertFrom-Json
+              
+              # The first item of the connectionStrings json array is the primary SQL connection string
+              $connectionString = $allConnectionStrings.connectionStrings[0].connectionString
+
+              echo "::set-output name=cosmos_connection_string::$connectionString"
+
+        - name: 'Insert sample data'
+          env:
+            COSMOS_CONNECTION_STRING: ${{ steps.get-connection-string.outputs.cosmos_connection_string }}
+          run: |
+            npm install
+            node insertdata.ts        
+          working-directory: src/database
