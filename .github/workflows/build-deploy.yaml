@@ -90,7 +90,7 @@ jobs:
           with: 
             azPSVersion: "latest"
             inlineScript: |
-              $deploymentOutput = "${{jobs.deploy-infra.outputs.deploymentOutput}}" | ConvertFrom-Json -Depth 10
+              $deploymentOutput = "${{ needs.deploy-infra.outputs.deploymentOutput }}" | ConvertFrom-Json -Depth 10
               $functionName = $deploymentOutput.FUNCTION_NAME.Value
               $rgName = $deploymentOutput.RESOURCE_GROUP_NAME.Value
 
@@ -126,7 +126,7 @@ jobs:
           with: 
             azPSVersion: "latest"
             inlineScript: |
-              $deploymentOutput = "${{jobs.deploy-infra.outputs.deploymentOutput}}" | ConvertFrom-Json -Depth 10
+              $deploymentOutput = "${{ needs.deploy-infra.outputs.deploymentOutput }}" | ConvertFrom-Json -Depth 10
               $storageAccountName = $deploymentOutput.STORAGE_ACCOUNT_NAME.Value
               
               Write-Output ::set-output name=storage_account_name::$storageAccountName
