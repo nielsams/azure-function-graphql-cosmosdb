@@ -86,8 +86,8 @@ jobs:
             azPSVersion: 7.5.0
             inlineScript: |
               $deploymentOutput = Get-Content deploymentoutput.json | ConvertFrom-Json
-              $rgName = $deploymentOutput.RESOURCE_GROUP_NAME
-              $funcName = $deploymentOutput.FUNCTION_NAME
+              $rgName = $deploymentOutput.RESOURCE_GROUP_NAME.Value
+              $funcName = $deploymentOutput.FUNCTION_NAME.Value
 
               $profile = (az functionapp deployment list-publishing-credentials --name app1-graphqlfunc --resource-group app1-rg)
               Write-Output ::set-output name=function_publish_profile::$profile
@@ -122,7 +122,7 @@ jobs:
             azPSVersion: 7.5.0
             inlineScript: |
               $deploymentOutput = Get-Content deploymentoutput.json | ConvertFrom-Json
-              $storageAccountName = $deploymentOutput.STORAGE_ACCOUNT_NAME
+              $storageAccountName = $deploymentOutput.STORAGE_ACCOUNT_NAME.Value
               
               Write-Output ::set-output name=storage_account_name::$storageAccountName
 
