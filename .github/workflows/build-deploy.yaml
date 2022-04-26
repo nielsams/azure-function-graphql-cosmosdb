@@ -204,6 +204,8 @@ jobs:
 
         - name: 'Get CosmosDB ConnectionString'
           id: get-connection-string
+          env:
+            POWERSHELL_TELEMETRY_OPTOUT: 1
           uses: azure/powershell@v1
           with: 
             azPSVersion: "latest"
