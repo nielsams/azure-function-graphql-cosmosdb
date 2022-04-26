@@ -204,8 +204,6 @@ jobs:
 
         - name: 'Get CosmosDB ConnectionString'
           id: get-connection-string
-          env:
-            POWERSHELL_TELEMETRY_OPTOUT: 1
           uses: azure/powershell@v1
           with: 
             azPSVersion: "latest"
@@ -220,6 +218,8 @@ jobs:
               # The first item of the connectionStrings json array is the primary SQL connection string
               $connectionString = $allConnectionStrings.connectionStrings[0].connectionString
 
+              # Hide the connectionString in the outputs from now on
+              echo "::add-mask::$connectionString"
               echo "::set-output name=cosmos_connection_string::$connectionString"
 
         - name: 'Insert sample data'
