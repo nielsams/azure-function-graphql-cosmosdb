@@ -157,7 +157,7 @@ jobs:
         - uses: actions/download-artifact@v2
           with:
             name: buildFrontend
-            path: src/frontend
+            path: src/frontend/dist
 
         - name: 'Login via Azure CLI'
           uses: azure/login@v1
