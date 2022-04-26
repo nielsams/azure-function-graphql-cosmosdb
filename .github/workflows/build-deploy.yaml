@@ -39,3 +39,27 @@ jobs:
 
               $res = New-AzDeployment -TemplateFile "src/infra/bicep/main.bicep" -TemplateParameterObject $params -Location ${{ secrets.AZURE_REGION }}
               $res.ProvisioningState
+    
+    build-node:
+        name: Build API and Frontend
+        runs-on: ubuntu-latest
+        steps:
+        - name: 'Checkout GitHub Action'
+          uses: actions/checkout@main
+
+        - name: 'Setup Node'
+          uses: actions/setup-node@v3
+          with:
+            node-version: '16'
+
+        - name: 'Build API'
+          run: |
+            npm install
+            npm run build        
+          working-directory: src/api
+
+        - name: 'Build Frontend'
+          run: |
+            npm install
+            npm run build        
+          working-directory: src/frontend
