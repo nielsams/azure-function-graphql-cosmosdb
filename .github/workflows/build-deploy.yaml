@@ -96,7 +96,7 @@ jobs:
             name: deploymentOutput
 
         - name: 'Obtain Function publish profile'
-          id: func-publish-profile
+          id: function-metadata
           uses: azure/powershell@v1
           with: 
             azPSVersion: "latest"
@@ -111,14 +111,14 @@ jobs:
                 Write-Error "Unable to retrieve publish profile"
               }
 
-              Write-Output ::set-output name=function_publish_profile::$profile
-              Write-Output ::set-output name=function_name::$functionName
+              echo "::set-output name=function_publish_profile::$profile"
+              echo "::set-output name=function_name::$functionName"
 
         - name: 'Publish Azure Function'
           uses: Azure/functions-action@v1
           id: fa
           with:
-            app-name: ${{steps.func-publish-profile.outputs.function_name}}
+            app-name: ${{ steps.function-metadata.outputs.function_name }}
             package: src/api
             # publish-profile: ${{ steps.func-publish-profile.outputs.function_publish_profile }}
 
@@ -150,12 +150,12 @@ jobs:
               $deploymentOutput = Get-Content deploymentOutput.json | ConvertFrom-Json -Depth 10
               $storageAccountName = $deploymentOutput.STORAGE_ACCOUNT_NAME.Value
               Write-Output "Found storage account $storageAccountName in deployment output"
-              Write-Output ::set-output name=storage_account_name::$storageAccountName
+              echo "::set-output name=storage_account_name::$storageAccountName"
 
         - name: 'Copy files to Azure Storage'
           uses: Azure/cli@v1
           env:
-            STORAGE_ACCOUNT: ${{steps.storage-name.outputs.storage_account_name}}
+            STORAGE_ACCOUNT: ${{ steps.storage-name.outputs.storage_account_name }}
           with:
             inlineScript: |
               az storage blob service-properties update --account-name ${STORAGE_ACCOUNT} --static-website --404-document index.html --index-document index.html
