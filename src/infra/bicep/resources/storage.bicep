@@ -14,10 +14,6 @@ resource storageappdata 'Microsoft.Storage/storageAccounts@2021-08-01' = {
   properties: {
     allowBlobPublicAccess: true
     supportsHttpsTrafficOnly: true
-    staticWebsite: {
-      indexDocument: 'index.html'
-      errorDocument404Path: '404.html'
-    }
   }
 }
 
