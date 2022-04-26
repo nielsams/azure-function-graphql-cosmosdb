@@ -28,7 +28,7 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           'name': 'CosmosKey'
-          'value': listConnectionStrings(resourceId('Microsoft.DocumentDB/databaseAccounts', '${nameprefix}-cosmos'), '2021-06-15').connectionStrings[0].connectionString
+          'value': listConnectionStrings(resourceId('Microsoft.DocumentDB/databaseAccounts', '${nameprefix}cosmos'), '2021-06-15').connectionStrings[0].connectionString
         }
         {
           name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
