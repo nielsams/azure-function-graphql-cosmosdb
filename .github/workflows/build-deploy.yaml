@@ -1,24 +1,31 @@
-# This is a basic workflow to help you get started with Actions
+# This workflow performs the following:
+# - Deploy Azure Resources
+# - Build the API and the Frontend
+# - Publish the API and the Frontend
+#
+# Secrets required to be in place:
+# - AZURE_CREDENTIALS
 
 name: Build and Deploy Application
 
-# Controls when the action will run. 
+env:
+  # This is the global resource prefix for this deployment
+  DEPLOYMENT_NAME: "app2"
+
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
+  # Triggers the workflow on push events on the main branch
   push:
     branches: [ main ]
 
-  # Allows you to run this workflow manually from the Actions tab
+  # We also want to be able to run this manually from Github
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
     deploy-infra:
         name: Deploy Azure Resources
         runs-on: ubuntu-latest
         steps:
 
-        # checkout the repo
         - name: 'Checkout GitHub Action'
           uses: actions/checkout@main
           
@@ -35,14 +42,14 @@ jobs:
             azPSVersion: "latest"
             inlineScript: |
               $params = @{
-                name = "app1";
+                name = "${{env.DEPLOYMENT_NAME}}";
               }
 
               $res = New-AzDeployment -TemplateFile "src/infra/bicep/main.bicep" -TemplateParameterObject $params -Location ${{ secrets.AZURE_REGION }}
               
-              # Save the outputs from the deployment for later use
+              # Save the outputs from the deployment
+              # These contain the resource names we need for deploying
               $outputsJson = $res.Outputs | ConvertTo-Json -Depth 10
-              Write-Output $outputsJson
               $outputsJson | Out-File deploymentOutput.json
 
         - name: Save deployment output
@@ -112,9 +119,7 @@ jobs:
             name: buildApi   
             path: src/api         
 
-        - run: ls -alR
-
-        - name: 'Get function name'
+        - name: 'Get function name from deployment'
           id: function-metadata
           uses: azure/powershell@v1
           with: 
@@ -122,24 +127,13 @@ jobs:
             inlineScript: |
               $deploymentOutput = Get-Content deploymentOutput.json | ConvertFrom-Json -Depth 10
               $functionName = $deploymentOutput.FUNCTION_NAME.Value
-              # $rgName = $deploymentOutput.RESOURCE_GROUP_NAME.Value
-
-              # Write-Output "Getting publish profile for function $functionName in resource group $rgName"
-              # $profile = (az functionapp deployment list-publishing-credentials --name $functionName --resource-group $rgName)
-              # if($profile -eq $null) {
-              #   Write-Error "Unable to retrieve publish profile"
-              # }
-
-              # echo "::set-output name=function_publish_profile::$profile"
               echo "::set-output name=function_name::$functionName"
 
         - name: 'Publish Azure Function'
           uses: Azure/functions-action@v1
-          id: fa
           with:
             app-name: ${{ steps.function-metadata.outputs.function_name }}
             package: src/api
-            # publish-profile: ${{ steps.func-publish-profile.outputs.function_publish_profile }}
 
     publish-web:
         name: Publish Website to Static Storage website
@@ -167,7 +161,7 @@ jobs:
 
         - run: ls -alR 
 
-        - name: 'Get storage account name'
+        - name: 'Get storage account name from deployment'
           id: storage-name
           uses: azure/powershell@v1
           with: 
@@ -175,7 +169,6 @@ jobs:
             inlineScript: |
               $deploymentOutput = Get-Content deploymentOutput.json | ConvertFrom-Json -Depth 10
               $storageAccountName = $deploymentOutput.STORAGE_ACCOUNT_NAME.Value
-              Write-Output "Found storage account $storageAccountName in deployment output"
               echo "::set-output name=storage_account_name::$storageAccountName"
 
         - name: 'Copy files to Azure Storage'
