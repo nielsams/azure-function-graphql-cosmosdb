@@ -31,7 +31,7 @@ jobs:
         - name: Deploy Azure Resources
           uses: azure/powershell@v1
           with: 
-            azPSVersion: 7.5.0
+            azPSVersion: "latest"
             inlineScript: |
               $params = @{
                 name = "app1";
@@ -85,7 +85,7 @@ jobs:
           id: func-publish-profile
           uses: azure/powershell@v1
           with: 
-            azPSVersion: 7.5.0
+            azPSVersion: "latest"
             inlineScript: |
               $deploymentOutput = Get-Content deploymentoutput.json | ConvertFrom-Json
               $rgName = $deploymentOutput.RESOURCE_GROUP_NAME
@@ -121,7 +121,7 @@ jobs:
           id: storage-name
           uses: azure/powershell@v1
           with: 
-            azPSVersion: 7.5.0
+            azPSVersion: "latest"
             inlineScript: |
               $deploymentOutput = Get-Content deploymentoutput.json | ConvertFrom-Json
               $storageAccountName = $deploymentOutput.STORAGE_ACCOUNT_NAME
