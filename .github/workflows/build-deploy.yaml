@@ -108,9 +108,9 @@ jobs:
             name: deploymentOutput
 
         - uses: actions/download-artifact@v2
-          working-directory: src/api
           with:
-            name: buildApi            
+            name: buildApi   
+            path: src/api         
 
         - run: ls -alR
 
@@ -155,9 +155,9 @@ jobs:
             name: deploymentOutput
 
         - uses: actions/download-artifact@v2
-          working-directory: src/frontend
           with:
             name: buildFrontend
+            path: src/frontend
 
         - name: 'Login via Azure CLI'
           uses: azure/login@v1
