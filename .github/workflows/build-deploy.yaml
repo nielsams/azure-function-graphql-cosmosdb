@@ -163,7 +163,9 @@ jobs:
           uses: azure/login@v1
           with:
             creds: ${{ secrets.AZURE_CREDENTIALS }}
-            enable-AzPSSession: true 
+            enable-AzPSSession: true
+
+        - run: ls -alR 
 
         - name: 'Get storage account name'
           id: storage-name
