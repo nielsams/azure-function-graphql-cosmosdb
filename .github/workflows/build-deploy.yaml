@@ -64,17 +64,23 @@ jobs:
           with:
             node-version: '16'
 
-        # - name: 'Build API'
-        #   run: |
-        #     npm install
-        #     npm run build
-        #   working-directory: src/api
+        - name: 'Build API'
+          run: |
+            npm install
+            npm run build
+          working-directory: src/api
 
         - name: 'Build Frontend'
           run: |
             npm install
             npm run build        
           working-directory: src/frontend
+
+        - name: Save API build output
+          uses: actions/upload-artifact@v2
+          with:
+            name: buildApi
+            path: src/api/*
 
         - name: Save frontend build output
           uses: actions/upload-artifact@v2
@@ -100,6 +106,12 @@ jobs:
         - uses: actions/download-artifact@v2
           with:
             name: deploymentOutput
+
+        - uses: actions/download-artifact@v2
+          with:
+            name: buildApi            
+
+        - run: ls -alR
 
         - name: 'Get function name'
           id: function-metadata
@@ -140,6 +152,10 @@ jobs:
         - uses: actions/download-artifact@v2
           with:
             name: deploymentOutput
+
+        - uses: actions/download-artifact@v2
+          with:
+            name: buildFrontend
 
         - name: 'Login via Azure CLI'
           uses: azure/login@v1
