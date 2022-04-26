@@ -1,0 +1,39 @@
+# This is a basic workflow to help you get started with Actions
+
+name: DeployApp
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        steps:
+
+        # checkout the repo
+        - name: 'Checkout GitHub Action'
+          uses: actions/checkout@main
+          
+        - name: 'Login via Azure CLI'
+          uses: azure/login@v1
+          with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
+            enable-AzPSSession: true 
+        
+        - name: Deploy Azure Resources
+          uses: azure/powershell@v1
+          with: 
+            inlineScript: |
+              $params = @{
+                name = "app1;
+              }
+
+              $res = New-AzDeployment -TemplateFile "src/infra/bicep/main.bicep" -TemplateParameterObject $params -Location ${{ secrets.AZURE_REGION }}
+              $res.ProvisioningState
