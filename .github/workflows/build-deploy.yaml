@@ -81,7 +81,7 @@ jobs:
           run: |
             npm install
             npm run build        
-          working-directory: src/frontend
+          working-directory: src/web
 
         - name: Save API build output
           uses: actions/upload-artifact@v2
@@ -93,7 +93,7 @@ jobs:
           uses: actions/upload-artifact@v2
           with:
             name: buildFrontend
-            path: src/frontend/dist/*
+            path: src/web/dist/*
 
     publish-api:
         name: Publish API to Azure Function
@@ -151,7 +151,7 @@ jobs:
         - uses: actions/download-artifact@v2
           with:
             name: buildFrontend
-            path: src/frontend/dist
+            path: src/web/dist
 
         - name: 'Login via Azure CLI'
           uses: azure/login@v1
@@ -176,7 +176,7 @@ jobs:
           with:
             inlineScript: |
               az storage blob service-properties update --account-name ${STORAGE_ACCOUNT} --static-website --404-document index.html --index-document index.html
-              az storage blob upload-batch --auth-mode key --account-name ${STORAGE_ACCOUNT} --destination '$web' --source src/frontend/dist --overwrite true
+              az storage blob upload-batch --auth-mode key --account-name ${STORAGE_ACCOUNT} --destination '$web' --source src/web/dist --overwrite true
 
     insert-sampledata:
         name: Insert sample data
