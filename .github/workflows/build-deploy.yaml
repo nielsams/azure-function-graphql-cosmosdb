@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: DeployApp
+name: Build and Deploy Application
 
 # Controls when the action will run. 
 on:
@@ -13,7 +13,8 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-    build-and-deploy:
+    deploy-infra:
+        name: Deploy Azure Resources
         runs-on: ubuntu-latest
         steps:
 
@@ -30,6 +31,7 @@ jobs:
         - name: Deploy Azure Resources
           uses: azure/powershell@v1
           with: 
+            azPSVersion: 7.5.0
             inlineScript: |
               $params = @{
                 name = "app1;
