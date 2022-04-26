@@ -185,4 +185,4 @@ jobs:
           with:
             inlineScript: |
               az storage blob service-properties update --account-name ${STORAGE_ACCOUNT} --static-website --404-document index.html --index-document index.html
-              az storage blob upload-batch --auth-mode login --account-name ${STORAGE_ACCOUNT} --destination '$web' --source src/frontend/dist --overwrite true
+              az storage blob upload-batch --auth-mode key --account-name ${STORAGE_ACCOUNT} --destination '$web' --source src/frontend/dist --overwrite true
