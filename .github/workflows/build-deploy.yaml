@@ -60,10 +60,8 @@ jobs:
 
         - name: 'Build API'
           run: |
-            pushd package
             npm install --if-present
             npm run build --if-present
-            popd
           working-directory: src/api
 
         - name: 'Build Frontend'
@@ -99,7 +97,7 @@ jobs:
           id: fa
           with:
             app-name: graphql
-            package: src/api/package
+            package: src/api
             publish-profile: ${{ steps.func-publish-profile.outputs.function_publish_profile }}
 
     publish-web:
