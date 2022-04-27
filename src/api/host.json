@@ -4,17 +4,5 @@
   "extensionBundle": {
     "id": "Microsoft.Azure.Functions.ExtensionBundle",
     "version": "[2.*, 3.0.0)"
-  },
-  "logging": {
-    "fileLoggingMode": "debugOnly",
-    "logLevel": {
-     "Function.MyFunction": "Information",
-     "default": "None"
-    }
-  },
-  "retry": {
-    "strategy": "fixedDelay",
-    "maxRetryCount": 5,
-    "delayInterval": "00:00:05"
   }
 }
