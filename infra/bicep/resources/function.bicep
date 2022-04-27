@@ -28,7 +28,7 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           'name': 'WEBSITE_NODE_DEFAULT_VERSION'
-          'value': '~10'
+          'value': '~14'
         }
         {
           'name': 'CosmosKey'
