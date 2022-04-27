@@ -7,13 +7,12 @@ param location string = resourceGroup().location
 resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
   name: '${nameprefix}graphqlfunc'
   location: location
-  kind: 'functionapp,linux'
+  kind: 'functionapp'
   properties: {
     httpsOnly: true
     serverFarmId: functionasp.id
     clientAffinityEnabled: true
     siteConfig: {
-      linuxFxVersion: 'NODE|14-lts'
       appSettings: [
         {
           name: 'AzureWebJobsStorage'
@@ -26,6 +25,10 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
         {
           'name': 'FUNCTIONS_WORKER_RUNTIME'
           'value': 'node'
+        }
+        {
+          'name': 'WEBSITE_NODE_DEFAULT_VERSION'
+          'value': '~10'
         }
         {
           'name': 'CosmosKey'
@@ -43,14 +46,10 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
 resource functionasp 'Microsoft.Web/serverfarms@2021-03-01' = {
   name: '${nameprefix}asp'
   location: location
-  properties: {
-    reserved: true
-  }
   sku: {
     name: 'Y1'
     tier: 'Dynamic'
   }
-  kind: 'linux'
 }
 
 resource functionstorage 'Microsoft.Storage/storageAccounts@2021-08-01' = {
