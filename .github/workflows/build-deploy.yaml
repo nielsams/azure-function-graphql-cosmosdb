@@ -18,6 +18,7 @@ on:
     branches: [ main ]
     paths-ignore:
       - '*.md'
+      - '*.png'
 
   # We also want to be able to run this manually from Github
   workflow_dispatch:
