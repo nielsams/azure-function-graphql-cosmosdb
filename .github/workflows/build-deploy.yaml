@@ -10,7 +10,10 @@ name: Build and Deploy Application
 
 env:
   # This is the global resource prefix for this deployment
-  DEPLOYMENT_NAME: "demo2258"
+  DEPLOYMENT_NAME: "demo2259"
+
+  # Azure region to which the resources will be deployed
+  DEPLOYMENT_REGION: "brazilsouth"
 
 on:
   # Triggers the workflow on push events on the main branch
@@ -48,7 +51,7 @@ jobs:
                 name = "${{env.DEPLOYMENT_NAME}}";
               }
 
-              $res = New-AzDeployment -TemplateFile "infra/bicep/main.bicep" -TemplateParameterObject $params -Location ${{ secrets.AZURE_REGION }}
+              $res = New-AzDeployment -TemplateFile "infra/bicep/main.bicep" -TemplateParameterObject $params -Location ${{env.DEPLOYMENT_REGION}}
               
               # Save the outputs from the deployment
               # These contain the resource names we need for deploying
