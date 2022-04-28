@@ -15,6 +15,6 @@ This is a quickstart template. It deploys the following:
 5. Run the workflow
 
 # To Do List Manager website
-Once successfully deployed, the application is accessible through the Front Door endpoint URL. Optionally, a [custom domain](https://docs.microsoft.com/azure/frontdoor/front-door-custom-domain) can be added to Front Door as well. 
+Once successfully deployed, the application is accessible through the Front Door endpoint URL (ending in azurefd.net). Optionally, a [custom domain](https://docs.microsoft.com/azure/frontdoor/front-door-custom-domain) can be added to Front Door as well. 
 
 ![Screenshot of the todolist webpage](/assets/todolistmanager.png)
