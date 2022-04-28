@@ -75,6 +75,7 @@ jobs:
           run: |
             npm install
             npm run build
+            rm -rf node_modules # We remove this since we upload the whole src/api dir as artifact and we don't need this anymore
           working-directory: src/api
 
         - name: 'Build Frontend'
