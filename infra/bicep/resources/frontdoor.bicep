@@ -31,11 +31,6 @@ resource afdorigingroup_api 'Microsoft.Cdn/profiles/origingroups@2021-06-01' = {
   parent: frontdoor
   name: 'origingroup-api'
   properties: {
-    loadBalancingSettings: {
-      sampleSize: 4
-      successfulSamplesRequired: 3
-      additionalLatencyInMilliseconds: 50
-    }
     sessionAffinityState: 'Disabled'
   }
 }
@@ -44,11 +39,6 @@ resource afdorigingroup_web 'Microsoft.Cdn/profiles/origingroups@2021-06-01' = {
   parent: frontdoor
   name: 'origingroup-web'
   properties: {
-    loadBalancingSettings: {
-      sampleSize: 4
-      successfulSamplesRequired: 3
-      additionalLatencyInMilliseconds: 50
-    }
     sessionAffinityState: 'Disabled'
   }
 }

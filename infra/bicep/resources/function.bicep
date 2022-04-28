@@ -66,5 +66,5 @@ resource functionstorage 'Microsoft.Storage/storageAccounts@2021-08-01' = {
   }
 }
 
-output functionUrl string = '${nameprefix}-graphqlfunc.azurewebsites.net'
+output functionUrl string = '${functionApp.name}.azurewebsites.net'
 output functionName string = functionApp.name
