@@ -1,7 +1,7 @@
 targetScope = 'subscription'
 
 @minLength(1)
-@maxLength(17)
+@maxLength(16)
 @description('Prefix for all resources, i.e. {name}storage')
 param name string
 
