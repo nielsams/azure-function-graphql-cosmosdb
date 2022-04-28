@@ -12,3 +12,8 @@ This is a quickstart template. It deploys the following:
 2. [Create](https://github.com/marketplace/actions/azure-cli-action#configure-azure-credentials-as-github-secret) an AZURE_CREDENTIALS object as a Github repo secret
 3. Change the value of DEPLOYMENT_NAME in the build-deploy.yaml workflow file
 4. Run the workflow
+
+# To Do List Manager website
+Once successfully deployed, the application is accessible through the Front Door endpoint URL. Optionally, a [custom domain](https://docs.microsoft.com/azure/frontdoor/front-door-custom-domain) can be added to Front Door as well. 
+
+![Screenshot of the todolist webpage](/assets/todolistmanager.png)
