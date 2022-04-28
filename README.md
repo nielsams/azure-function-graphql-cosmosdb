@@ -1,5 +1,3 @@
-## Work in Progress... 
-
 # Introduction
 This is a quickstart template. It deploys the following:
 - CosmosDB instance with ToDo list sample content
