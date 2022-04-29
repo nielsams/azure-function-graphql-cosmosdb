@@ -17,8 +17,6 @@ const fetchFunction = function (uri: RequestInfo, options: RequestInit) {
 
 // Create an http link:
 const httpLink = new HttpLink({
-    // uri: "/api/graphql/",
-    // uri: "https://demo2262graphqlfunc.azurewebsites.net/api/graphql/",
     uri: window.API_URL,
     fetch: fetchFunction,
 })

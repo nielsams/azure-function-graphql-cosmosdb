@@ -1,1 +1,1 @@
-window.API_URL = "https://demo2262graphqlfunc.azurewebsites.net/api/graphql/" // without the trailing "/"
+window.API_URL = "/api/graphql/"
