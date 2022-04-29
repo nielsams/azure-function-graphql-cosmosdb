@@ -51,7 +51,7 @@ jobs:
               $params = @{
                 name = "${{env.DEPLOYMENT_NAME}}";
               }
-              $deploymentName = "{1}-{2}" -f ${{env.DEPLOYMENT_NAME}}, ${{env.DEPLOYMENT_REGION}}
+              $deploymentName = ("{1}-{2}" -f "${{env.DEPLOYMENT_NAME}}", "${{env.DEPLOYMENT_REGION}}")
               $res = New-AzDeployment -Name $deploymentName -TemplateFile "infra/bicep/main.bicep" -TemplateParameterObject $params -Location ${{env.DEPLOYMENT_REGION}}
               
               # Save the outputs from the deployment
