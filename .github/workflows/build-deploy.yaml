@@ -2,6 +2,7 @@
 # - Deploy Azure Resources
 # - Build the API and the Frontend
 # - Publish the API and the Frontend
+# - Insert sample data into CosmosDB
 #
 # Secrets required to be in place:
 # - AZURE_CREDENTIALS
