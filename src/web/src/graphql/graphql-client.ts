@@ -2,6 +2,8 @@ import { ApolloClient, InMemoryCache, HttpLink} from "@apollo/client/core"
 import { onError } from "@apollo/client/link/error"
 import { logErrorMessages } from "@vue/apollo-util"
 
+declare const window: any;
+
 function getHeaders() {
     const headers = {}
     // If needed, insert authorization header here
@@ -15,7 +17,9 @@ const fetchFunction = function (uri: RequestInfo, options: RequestInit) {
 
 // Create an http link:
 const httpLink = new HttpLink({
-    uri: "/api/graphql/",
+    // uri: "/api/graphql/",
+    // uri: "https://demo2262graphqlfunc.azurewebsites.net/api/graphql/",
+    uri: window.API_URL,
     fetch: fetchFunction,
 })
 
