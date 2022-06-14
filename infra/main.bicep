@@ -55,8 +55,8 @@ module cosmosdb './resources/cosmosdb.bicep' = {
   }
 }
 
-output RESOURCE_GROUP_NAME string = rg.name
-output FUNCTION_NAME string = function.outputs.functionName
-output STORAGE_ACCOUNT_NAME string = storage.outputs.storageAccountName
-output COSMOSDB_NAME string = cosmosdb.outputs.cosmosDBName
-output FRONTDOOR_HOSTNAME string = frontdoor.outputs.frontDoorEndpointHostName
+output resource_group_name string = rg.name
+output function_name string = function.outputs.functionName
+output storage_account_name string = storage.outputs.storageAccountName
+output cosmosdb_name string = cosmosdb.outputs.cosmosDBName
+output frontdoor_hostname string = frontdoor.outputs.frontDoorEndpointHostName

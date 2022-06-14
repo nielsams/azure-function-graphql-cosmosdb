@@ -63,9 +63,9 @@ jobs:
               Write-Output $res.Outputs
 
               # Write the Front Door endpoint hostname to the step summary:
-              $endpointHostname = $res.Outputs.FRONTDOOR_HOSTNAME.Value
+              $endpointHostname = $res.Outputs.frontdoor_hostname.Value
               "### Azure Resource deployment complete :rocket:" | Out-File -Append -FilePath $Env:GITHUB_STEP_SUMMARY
-              "### Your To-do list website can be found at $endpointHostname" | Out-File -Append -FilePath $Env:GITHUB_STEP_SUMMARY
+              "### Your To-do list website can be found at https://$endpointHostname" | Out-File -Append -FilePath $Env:GITHUB_STEP_SUMMARY
               "This URL will start working once the application deployment is complete." | Out-File -Append -FilePath $Env:GITHUB_STEP_SUMMARY
 
         - name: Save deployment output
@@ -142,7 +142,7 @@ jobs:
             azPSVersion: "latest"
             inlineScript: |
               $deploymentOutput = Get-Content deploymentOutput.json | ConvertFrom-Json -Depth 10
-              $functionName = $deploymentOutput.FUNCTION_NAME.Value
+              $functionName = $deploymentOutput.function_name.Value
               echo "::set-output name=function_name::$functionName"
 
         - name: 'Publish Azure Function'
@@ -182,7 +182,7 @@ jobs:
             azPSVersion: "latest"
             inlineScript: |
               $deploymentOutput = Get-Content deploymentOutput.json | ConvertFrom-Json -Depth 10
-              $storageAccountName = $deploymentOutput.STORAGE_ACCOUNT_NAME.Value
+              $storageAccountName = $deploymentOutput.storage_account_name.Value
               echo "::set-output name=storage_account_name::$storageAccountName"
 
         - name: 'Copy files to Azure Storage'
@@ -225,8 +225,8 @@ jobs:
             azPSVersion: "latest"
             inlineScript: |
               $deploymentOutput = Get-Content deploymentOutput.json | ConvertFrom-Json -Depth 10
-              $cosmosName = $deploymentOutput.COSMOSDB_NAME.Value
-              $rgName = $deploymentOutput.RESOURCE_GROUP_NAME.Value
+              $cosmosName = $deploymentOutput.cosmosdb_name.Value
+              $rgName = $deploymentOutput.resource_group_name.Value
 
               # This returns a list of all connection strings for the cosmosdb instance
               $allConnectionStrings = (az cosmosdb keys list --name $cosmosName --resource-group $rgName --type connection-strings) | ConvertFrom-Json
