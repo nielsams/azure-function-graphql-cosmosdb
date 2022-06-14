@@ -60,6 +60,8 @@ jobs:
               $outputsJson = $res.Outputs | ConvertTo-Json -Depth 10
               $outputsJson | Out-File deploymentOutput.json
 
+              Write-Output $res.Outputs
+
               # Write the Front Door endpoint hostname to the step summary:
               $endpointHostname = $res.Outputs.FRONTDOOR_HOSTNAME.Value
               "### Azure Resource deployment complete :rocket:" | Out-File -Append -FilePath $Env:GITHUB_STEP_SUMMARY
