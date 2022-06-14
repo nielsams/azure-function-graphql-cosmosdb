@@ -61,9 +61,9 @@ jobs:
               $outputsJson | Out-File deploymentOutput.json
 
               # Write the Front Door endpoint hostname to the step summary:
-              $endpointHostname = $res.Outputs.FRONTDOOR_HOSTNAME
+              $endpointHostname = $res.Outputs.FRONTDOOR_HOSTNAME.Value
               "### Azure Resource deployment complete :rocket:" | Out-File -Append -FilePath $Env:GITHUB_STEP_SUMMARY
-              "### Website can be found at $endpointHostname" | Out-File -Append -FilePath $Env:GITHUB_STEP_SUMMARY
+              "### Your To-do list website can be found at $endpointHostname" | Out-File -Append -FilePath $Env:GITHUB_STEP_SUMMARY
               "This URL will start working once the application deployment is complete." | Out-File -Append -FilePath $Env:GITHUB_STEP_SUMMARY
 
         - name: Save deployment output
