@@ -53,7 +53,7 @@ jobs:
                 name = "${{env.DEPLOYMENT_NAME}}";
               }
               $deploymentName = ("{0}-{1}" -f "${{env.DEPLOYMENT_NAME}}", "${{env.DEPLOYMENT_REGION}}")
-              $res = New-AzDeployment -Name $deploymentName -TemplateFile "infra/bicep/main.bicep" -TemplateParameterObject $params -Location ${{env.DEPLOYMENT_REGION}}
+              $res = New-AzDeployment -Name $deploymentName -TemplateFile "infra/main.bicep" -TemplateParameterObject $params -Location ${{env.DEPLOYMENT_REGION}}
               
               # Save the outputs from the deployment
               # These contain the resource names we need for deploying
