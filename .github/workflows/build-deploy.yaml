@@ -62,9 +62,9 @@ jobs:
 
               # Write the Front Door endpoint hostname to the step summary:
               $endpointHostname = $res.Outputs.FRONTDOOR_HOSTNAME
-              "### Azure Resource deployment complete :rocket:" | Out-File -Append -FilePath $GITHUB_STEP_SUMMARY
-              "### Website can be found at $endpointHostname" | Out-File -Append -FilePath $GITHUB_STEP_SUMMARY
-              "This URl will start working once the application deployment is complete." | Out-File -Append -FilePath $GITHUB_STEP_SUMMARY
+              "### Azure Resource deployment complete :rocket:" | Out-File -Append -FilePath $Env:GITHUB_STEP_SUMMARY
+              "### Website can be found at $endpointHostname" | Out-File -Append -FilePath $Env:GITHUB_STEP_SUMMARY
+              "This URL will start working once the application deployment is complete." | Out-File -Append -FilePath $Env:GITHUB_STEP_SUMMARY
 
         - name: Save deployment output
           uses: actions/upload-artifact@v2
