@@ -59,3 +59,4 @@ output RESOURCE_GROUP_NAME string = rg.name
 output FUNCTION_NAME string = function.outputs.functionName
 output STORAGE_ACCOUNT_NAME string = storage.outputs.storageAccountName
 output COSMOSDB_NAME string = cosmosdb.outputs.cosmosDBName
+output FRONTDOOR_HOSTNAME string = frontdoor.outputs.frontDoorEndpointHostName

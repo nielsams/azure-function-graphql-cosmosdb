@@ -60,6 +60,12 @@ jobs:
               $outputsJson = $res.Outputs | ConvertTo-Json -Depth 10
               $outputsJson | Out-File deploymentOutput.json
 
+              # Write the Front Door endpoint hostname to the step summary:
+              $endpointHostname = $res.Outputs.FRONTDOOR_HOSTNAME
+              echo "### Azure Resource deployment complete :rocket:" >> $GITHUB_STEP_SUMMARY
+              echo "### Website can be found at $endpointHostname" >> $GITHUB_STEP_SUMMARY
+              echo "This URl will start working once the application deployment is complete." >> $GITHUB_STEP_SUMMARY
+
         - name: Save deployment output
           uses: actions/upload-artifact@v2
           with:

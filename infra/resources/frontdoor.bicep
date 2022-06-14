@@ -18,7 +18,7 @@ resource frontdoor 'Microsoft.Cdn/profiles@2021-06-01' = {
   }
 }
 
-resource afdendpoint_app 'Microsoft.Cdn/profiles/afdendpoints@2021-06-01' = {
+resource afdendpoint 'Microsoft.Cdn/profiles/afdendpoints@2021-06-01' = {
   parent: frontdoor
   name: nameprefix
   location: 'Global'
@@ -84,7 +84,7 @@ resource afdorigin_web 'Microsoft.Cdn/profiles/origingroups/origins@2021-06-01' 
 }
 
 resource afdroute_api 'Microsoft.Cdn/profiles/afdendpoints/routes@2021-06-01' = {
-  parent: afdendpoint_app
+  parent: afdendpoint
   name: 'route-api'
   properties: {
     customDomains: []
@@ -107,7 +107,7 @@ resource afdroute_api 'Microsoft.Cdn/profiles/afdendpoints/routes@2021-06-01' = 
 }
 
 resource afdroute_web 'Microsoft.Cdn/profiles/afdendpoints/routes@2021-06-01' = {
-  parent: afdendpoint_app
+  parent: afdendpoint
   name: 'route-web'
   properties: {
     customDomains: []
@@ -129,3 +129,5 @@ resource afdroute_web 'Microsoft.Cdn/profiles/afdendpoints/routes@2021-06-01' = 
     enabledState: 'Enabled'
   }
 }
+
+output frontDoorEndpointHostName string = afdendpoint.properties.hostName
