@@ -12,7 +12,7 @@ name: Build and Deploy Application
 env:
   # This is the global resource prefix for this deployment
   # Use lower case letters and numbers only
-  DEPLOYMENT_NAME: "demo2266"
+  DEPLOYMENT_NAME: "demo2267"
 
   # Azure region to which the resources will be deployed
   DEPLOYMENT_REGION: "southcentralus"
@@ -62,9 +62,8 @@ jobs:
 
               # Write the Front Door endpoint hostname to the step summary:
               $endpointHostname = $res.Outputs.frontdoor_hostname.Value
-              "### Azure Resource deployment complete :rocket:" | Out-File -Append -FilePath $Env:GITHUB_STEP_SUMMARY
-              "### Your To-do list website can be found at https://$endpointHostname" | Out-File -Append -FilePath $Env:GITHUB_STEP_SUMMARY
-              "This URL will start working once the application deployment is complete." | Out-File -Append -FilePath $Env:GITHUB_STEP_SUMMARY
+              "### Azure resource deployment complete :rocket:" | Out-File -Append -FilePath $Env:GITHUB_STEP_SUMMARY
+              "#### Your to-do list website can be found at https://$endpointHostname and will start working once the application deployment is complete." | Out-File -Append -FilePath $Env:GITHUB_STEP_SUMMARY
 
         - name: Save deployment output
           uses: actions/upload-artifact@v2
