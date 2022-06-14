@@ -1,12 +1,14 @@
 {
-  "name": "ToDoListManager",
+  "name": "todolists",
   "version": "0.2.0",
-  "private": true,
+  "description": "",
+  "main": "index.js",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
+  "author": "",
   "dependencies": {
     "@vue/apollo-composable": "^4.0.0-alpha.17",
     "@vue/apollo-util": "^4.0.0-alpha.17",
@@ -17,18 +19,11 @@
     "vue-class-component": "^8.0.0-0"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.28.0",
-    "@typescript-eslint/parser": "^5.28.0",
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-plugin-typescript": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
     "@vue/eslint-config-standard": "^7.0.0",
     "@vue/eslint-config-typescript": "^9.1.0",
-    "eslint": "^8.17.0",
-    "eslint-plugin-import": "^2.25.3",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^5.2.0",
-    "eslint-plugin-vue": "^8.7.1",
     "typescript": "~4.5.5"
   },
   "eslintConfig": {
