@@ -1,0 +1,723 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.7.4.23292",
+      "templateHash": "11087967926544586182"
+    }
+  },
+  "parameters": {
+    "name": {
+      "type": "string",
+      "metadata": {
+        "description": "Prefix for all resources, i.e. {name}storage"
+      },
+      "maxLength": 16,
+      "minLength": 1
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[deployment().location]",
+      "metadata": {
+        "description": "Primary location for all resources"
+      },
+      "minLength": 1
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}-rg', parameters('name'))]",
+      "location": "[parameters('location')]"
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[format('{0}-storage', format('{0}-rg', parameters('name')))]",
+      "resourceGroup": "[format('{0}-rg', parameters('name'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "nameprefix": {
+            "value": "[toLower(parameters('name'))]"
+          },
+          "location": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-rg', parameters('name'))), '2020-06-01', 'full').location]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.7.4.23292",
+              "templateHash": "10499600632317055784"
+            }
+          },
+          "parameters": {
+            "nameprefix": {
+              "type": "string",
+              "metadata": {
+                "description": "First part of the resource name"
+              }
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]",
+              "metadata": {
+                "description": "Azure region for resources"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2021-08-01",
+              "name": "[format('{0}appstor', parameters('nameprefix'))]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "Standard_LRS"
+              },
+              "kind": "StorageV2",
+              "properties": {
+                "allowBlobPublicAccess": true,
+                "supportsHttpsTrafficOnly": true
+              }
+            }
+          ],
+          "outputs": {
+            "staticWebsiteUrl": {
+              "type": "string",
+              "value": "[replace(replace(reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}appstor', parameters('nameprefix')))).primaryEndpoints.web, 'https://', ''), '/', '')]"
+            },
+            "storageAccountName": {
+              "type": "string",
+              "value": "[format('{0}appstor', parameters('nameprefix'))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-rg', parameters('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[format('{0}-function', format('{0}-rg', parameters('name')))]",
+      "resourceGroup": "[format('{0}-rg', parameters('name'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "nameprefix": {
+            "value": "[toLower(parameters('name'))]"
+          },
+          "location": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-rg', parameters('name'))), '2020-06-01', 'full').location]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.7.4.23292",
+              "templateHash": "8784745554955562099"
+            }
+          },
+          "parameters": {
+            "nameprefix": {
+              "type": "string",
+              "metadata": {
+                "description": "First part of the resource name"
+              }
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]",
+              "metadata": {
+                "description": "Azure region for resources"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Web/sites",
+              "apiVersion": "2020-06-01",
+              "name": "[format('{0}graphqlfunc', parameters('nameprefix'))]",
+              "location": "[parameters('location')]",
+              "kind": "functionapp",
+              "properties": {
+                "httpsOnly": true,
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', format('{0}asp', parameters('nameprefix')))]",
+                "clientAffinityEnabled": true,
+                "siteConfig": {
+                  "appSettings": [
+                    {
+                      "name": "AzureWebJobsStorage",
+                      "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', format('{0}funcstor', parameters('nameprefix')), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', format('{0}funcstor', parameters('nameprefix'))), '2021-08-01').keys[0].value)]"
+                    },
+                    {
+                      "name": "FUNCTIONS_EXTENSION_VERSION",
+                      "value": "~4"
+                    },
+                    {
+                      "name": "FUNCTIONS_WORKER_RUNTIME",
+                      "value": "node"
+                    },
+                    {
+                      "name": "WEBSITE_NODE_DEFAULT_VERSION",
+                      "value": "~16"
+                    },
+                    {
+                      "name": "NODE_ENV",
+                      "value": "production"
+                    },
+                    {
+                      "name": "CosmosKey",
+                      "value": "[listConnectionStrings(resourceId('Microsoft.DocumentDB/databaseAccounts', format('{0}cosmos', parameters('nameprefix'))), '2021-06-15').connectionStrings[0].connectionString]"
+                    },
+                    {
+                      "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+                      "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', format('{0}funcstor', parameters('nameprefix')), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', format('{0}funcstor', parameters('nameprefix'))), '2021-08-01').keys[0].value)]"
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', format('{0}asp', parameters('nameprefix')))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', format('{0}funcstor', parameters('nameprefix')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Web/serverfarms",
+              "apiVersion": "2021-03-01",
+              "name": "[format('{0}asp', parameters('nameprefix'))]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "Y1",
+                "tier": "Dynamic"
+              }
+            },
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2021-08-01",
+              "name": "[format('{0}funcstor', parameters('nameprefix'))]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+              },
+              "kind": "Storage",
+              "properties": {
+                "allowBlobPublicAccess": true,
+                "supportsHttpsTrafficOnly": true
+              }
+            }
+          ],
+          "outputs": {
+            "functionUrl": {
+              "type": "string",
+              "value": "[format('{0}.azurewebsites.net', format('{0}graphqlfunc', parameters('nameprefix')))]"
+            },
+            "functionName": {
+              "type": "string",
+              "value": "[format('{0}graphqlfunc', parameters('nameprefix'))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-rg', parameters('name'))), 'Microsoft.Resources/deployments', format('{0}-cosmosdb', format('{0}-rg', parameters('name'))))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-rg', parameters('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[format('{0}-frontdoor', format('{0}-rg', parameters('name')))]",
+      "resourceGroup": "[format('{0}-rg', parameters('name'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "nameprefix": {
+            "value": "[toLower(parameters('name'))]"
+          },
+          "apiUrl": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-rg', parameters('name'))), 'Microsoft.Resources/deployments', format('{0}-function', format('{0}-rg', parameters('name'))))).outputs.functionUrl.value]"
+          },
+          "webUrl": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-rg', parameters('name'))), 'Microsoft.Resources/deployments', format('{0}-storage', format('{0}-rg', parameters('name'))))).outputs.staticWebsiteUrl.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.7.4.23292",
+              "templateHash": "5749129365787184032"
+            }
+          },
+          "parameters": {
+            "nameprefix": {
+              "type": "string",
+              "metadata": {
+                "description": "First part of the resource name"
+              }
+            },
+            "apiUrl": {
+              "type": "string",
+              "metadata": {
+                "description": "The base URL of the API, without https://"
+              }
+            },
+            "webUrl": {
+              "type": "string",
+              "metadata": {
+                "description": "The base URL of the website, without https://"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Cdn/profiles",
+              "apiVersion": "2021-06-01",
+              "name": "[format('{0}afd', parameters('nameprefix'))]",
+              "location": "Global",
+              "sku": {
+                "name": "Standard_AzureFrontDoor"
+              },
+              "properties": {
+                "originResponseTimeoutSeconds": 60
+              }
+            },
+            {
+              "type": "Microsoft.Cdn/profiles/afdEndpoints",
+              "apiVersion": "2021-06-01",
+              "name": "[format('{0}/{1}', format('{0}afd', parameters('nameprefix')), parameters('nameprefix'))]",
+              "location": "Global",
+              "properties": {
+                "enabledState": "Enabled"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles', format('{0}afd', parameters('nameprefix')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Cdn/profiles/originGroups",
+              "apiVersion": "2021-06-01",
+              "name": "[format('{0}/{1}', format('{0}afd', parameters('nameprefix')), 'origingroup-api')]",
+              "properties": {
+                "loadBalancingSettings": {
+                  "sampleSize": 4,
+                  "successfulSamplesRequired": 3,
+                  "additionalLatencyInMilliseconds": 50
+                },
+                "sessionAffinityState": "Disabled"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles', format('{0}afd', parameters('nameprefix')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Cdn/profiles/originGroups",
+              "apiVersion": "2021-06-01",
+              "name": "[format('{0}/{1}', format('{0}afd', parameters('nameprefix')), 'origingroup-web')]",
+              "properties": {
+                "loadBalancingSettings": {
+                  "sampleSize": 4,
+                  "successfulSamplesRequired": 3,
+                  "additionalLatencyInMilliseconds": 50
+                },
+                "sessionAffinityState": "Disabled"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles', format('{0}afd', parameters('nameprefix')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Cdn/profiles/originGroups/origins",
+              "apiVersion": "2021-06-01",
+              "name": "[format('{0}/{1}/{2}', format('{0}afd', parameters('nameprefix')), 'origingroup-api', 'origin-api')]",
+              "properties": {
+                "hostName": "[parameters('apiUrl')]",
+                "httpPort": 80,
+                "httpsPort": 443,
+                "originHostHeader": "[parameters('apiUrl')]",
+                "priority": 1,
+                "weight": 1000,
+                "enabledState": "Enabled",
+                "enforceCertificateNameCheck": true
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles/originGroups', format('{0}afd', parameters('nameprefix')), 'origingroup-api')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Cdn/profiles/originGroups/origins",
+              "apiVersion": "2021-06-01",
+              "name": "[format('{0}/{1}/{2}', format('{0}afd', parameters('nameprefix')), 'origingroup-web', 'origin-web')]",
+              "properties": {
+                "hostName": "[parameters('webUrl')]",
+                "httpPort": 80,
+                "httpsPort": 443,
+                "originHostHeader": "[parameters('webUrl')]",
+                "priority": 1,
+                "weight": 1000,
+                "enabledState": "Enabled",
+                "enforceCertificateNameCheck": true
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles/originGroups', format('{0}afd', parameters('nameprefix')), 'origingroup-web')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Cdn/profiles/afdEndpoints/routes",
+              "apiVersion": "2021-06-01",
+              "name": "[format('{0}/{1}/{2}', format('{0}afd', parameters('nameprefix')), parameters('nameprefix'), 'route-api')]",
+              "properties": {
+                "customDomains": [],
+                "originGroup": {
+                  "id": "[resourceId('Microsoft.Cdn/profiles/originGroups', format('{0}afd', parameters('nameprefix')), 'origingroup-api')]"
+                },
+                "ruleSets": [],
+                "supportedProtocols": [
+                  "Http",
+                  "Https"
+                ],
+                "patternsToMatch": [
+                  "/api/*"
+                ],
+                "forwardingProtocol": "MatchRequest",
+                "linkToDefaultDomain": "Enabled",
+                "httpsRedirect": "Enabled",
+                "enabledState": "Enabled"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles/afdEndpoints', format('{0}afd', parameters('nameprefix')), parameters('nameprefix'))]",
+                "[resourceId('Microsoft.Cdn/profiles/originGroups', format('{0}afd', parameters('nameprefix')), 'origingroup-api')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Cdn/profiles/afdEndpoints/routes",
+              "apiVersion": "2021-06-01",
+              "name": "[format('{0}/{1}/{2}', format('{0}afd', parameters('nameprefix')), parameters('nameprefix'), 'route-web')]",
+              "properties": {
+                "customDomains": [],
+                "originGroup": {
+                  "id": "[resourceId('Microsoft.Cdn/profiles/originGroups', format('{0}afd', parameters('nameprefix')), 'origingroup-web')]"
+                },
+                "originPath": "/",
+                "ruleSets": [],
+                "supportedProtocols": [
+                  "Http",
+                  "Https"
+                ],
+                "patternsToMatch": [
+                  "/*"
+                ],
+                "forwardingProtocol": "HttpsOnly",
+                "linkToDefaultDomain": "Enabled",
+                "httpsRedirect": "Enabled",
+                "enabledState": "Enabled"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles/afdEndpoints', format('{0}afd', parameters('nameprefix')), parameters('nameprefix'))]",
+                "[resourceId('Microsoft.Cdn/profiles/originGroups', format('{0}afd', parameters('nameprefix')), 'origingroup-web')]"
+              ]
+            }
+          ],
+          "outputs": {
+            "frontDoorEndpointHostName": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Cdn/profiles/afdEndpoints', format('{0}afd', parameters('nameprefix')), parameters('nameprefix'))).hostName]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-rg', parameters('name'))), 'Microsoft.Resources/deployments', format('{0}-function', format('{0}-rg', parameters('name'))))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-rg', parameters('name')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-rg', parameters('name'))), 'Microsoft.Resources/deployments', format('{0}-storage', format('{0}-rg', parameters('name'))))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[format('{0}-cosmosdb', format('{0}-rg', parameters('name')))]",
+      "resourceGroup": "[format('{0}-rg', parameters('name'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "nameprefix": {
+            "value": "[toLower(parameters('name'))]"
+          },
+          "location": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-rg', parameters('name'))), '2020-06-01', 'full').location]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.7.4.23292",
+              "templateHash": "7948241158667508884"
+            }
+          },
+          "parameters": {
+            "nameprefix": {
+              "type": "string",
+              "metadata": {
+                "description": "First part of the resource name"
+              }
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]",
+              "metadata": {
+                "description": "Azure region for resources"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.DocumentDB/databaseAccounts",
+              "apiVersion": "2021-06-15",
+              "name": "[format('{0}cosmos', parameters('nameprefix'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "locations": [
+                  {
+                    "locationName": "[parameters('location')]",
+                    "failoverPriority": 0,
+                    "isZoneRedundant": false
+                  }
+                ],
+                "databaseAccountOfferType": "Standard",
+                "consistencyPolicy": {
+                  "defaultConsistencyLevel": "Session"
+                }
+              }
+            },
+            {
+              "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
+              "apiVersion": "2021-06-15",
+              "name": "[format('{0}/{1}', format('{0}cosmos', parameters('nameprefix')), 'ToDoList')]",
+              "properties": {
+                "resource": {
+                  "id": "ToDoList"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', format('{0}cosmos', parameters('nameprefix')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+              "apiVersion": "2021-06-15",
+              "name": "[format('{0}/{1}/{2}', format('{0}cosmos', parameters('nameprefix')), 'ToDoList', 'Items')]",
+              "properties": {
+                "resource": {
+                  "id": "Items",
+                  "indexingPolicy": {
+                    "indexingMode": "consistent",
+                    "automatic": true,
+                    "includedPaths": [
+                      {
+                        "path": "/*"
+                      }
+                    ],
+                    "excludedPaths": [
+                      {
+                        "path": "/\"_etag\"/?"
+                      }
+                    ]
+                  },
+                  "partitionKey": {
+                    "paths": [
+                      "/id"
+                    ],
+                    "kind": "Hash"
+                  },
+                  "uniqueKeyPolicy": {
+                    "uniqueKeys": []
+                  },
+                  "conflictResolutionPolicy": {
+                    "mode": "LastWriterWins",
+                    "conflictResolutionPath": "/_ts"
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', format('{0}cosmos', parameters('nameprefix')), 'ToDoList')]"
+              ]
+            },
+            {
+              "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+              "apiVersion": "2021-06-15",
+              "name": "[format('{0}/{1}/{2}', format('{0}cosmos', parameters('nameprefix')), 'ToDoList', 'Lists')]",
+              "properties": {
+                "resource": {
+                  "id": "Lists",
+                  "indexingPolicy": {
+                    "indexingMode": "consistent",
+                    "automatic": true,
+                    "includedPaths": [
+                      {
+                        "path": "/*"
+                      }
+                    ],
+                    "excludedPaths": [
+                      {
+                        "path": "/\"_etag\"/?"
+                      }
+                    ]
+                  },
+                  "partitionKey": {
+                    "paths": [
+                      "/id"
+                    ],
+                    "kind": "Hash"
+                  },
+                  "uniqueKeyPolicy": {
+                    "uniqueKeys": []
+                  },
+                  "conflictResolutionPolicy": {
+                    "mode": "LastWriterWins",
+                    "conflictResolutionPath": "/_ts"
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', format('{0}cosmos', parameters('nameprefix')), 'ToDoList')]"
+              ]
+            }
+          ],
+          "outputs": {
+            "cosmosDBName": {
+              "type": "string",
+              "value": "[format('{0}cosmos', parameters('nameprefix'))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-rg', parameters('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[format('{0}-static', format('{0}-rg', parameters('name')))]",
+      "resourceGroup": "[format('{0}-rg', parameters('name'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "nameprefix": {
+            "value": "[toLower(parameters('name'))]"
+          },
+          "location": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-rg', parameters('name'))), '2020-06-01', 'full').location]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.7.4.23292",
+              "templateHash": "8061328940513447184"
+            }
+          },
+          "parameters": {
+            "nameprefix": {
+              "type": "string",
+              "metadata": {
+                "description": "First part of the resource name"
+              }
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]",
+              "metadata": {
+                "description": "Azure region for resources"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Web/staticSites",
+              "apiVersion": "2021-03-01",
+              "name": "[format('{0}web', parameters('nameprefix'))]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "tier": "free",
+                "name": "free"
+              }
+            }
+          ],
+          "outputs": {
+            "staticWebsiteName": {
+              "type": "string",
+              "value": "[format('{0}web', parameters('nameprefix'))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-rg', parameters('name')))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "resource_group_name": {
+      "type": "string",
+      "value": "[format('{0}-rg', parameters('name'))]"
+    },
+    "function_name": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-rg', parameters('name'))), 'Microsoft.Resources/deployments', format('{0}-function', format('{0}-rg', parameters('name'))))).outputs.functionName.value]"
+    },
+    "storage_account_name": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-rg', parameters('name'))), 'Microsoft.Resources/deployments', format('{0}-storage', format('{0}-rg', parameters('name'))))).outputs.storageAccountName.value]"
+    },
+    "cosmosdb_name": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-rg', parameters('name'))), 'Microsoft.Resources/deployments', format('{0}-cosmosdb', format('{0}-rg', parameters('name'))))).outputs.cosmosDBName.value]"
+    },
+    "frontdoor_hostname": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-rg', parameters('name'))), 'Microsoft.Resources/deployments', format('{0}-frontdoor', format('{0}-rg', parameters('name'))))).outputs.frontDoorEndpointHostName.value]"
+    },
+    "staticweb_name": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-rg', parameters('name'))), 'Microsoft.Resources/deployments', format('{0}-static', format('{0}-rg', parameters('name'))))).outputs.staticWebsiteName.value]"
+    }
+  }
+}

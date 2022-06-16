@@ -55,8 +55,18 @@ module cosmosdb './resources/cosmosdb.bicep' = {
   }
 }
 
+module staticweb './resources/staticweb.bicep' = {
+  name: '${rg.name}-static'
+  scope: rg
+  params: {
+    nameprefix: toLower(name)
+    location: rg.location
+  }
+}
+
 output resource_group_name string = rg.name
 output function_name string = function.outputs.functionName
 output storage_account_name string = storage.outputs.storageAccountName
 output cosmosdb_name string = cosmosdb.outputs.cosmosDBName
 output frontdoor_hostname string = frontdoor.outputs.frontDoorEndpointHostName
+output staticweb_name string = staticweb.outputs.staticWebsiteName
